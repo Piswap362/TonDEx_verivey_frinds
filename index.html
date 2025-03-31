@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON DEX - Airdrop & Referrals</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #006D77;
+            --primary-medium: #1A6E7A;
+            --primary-light: #83C5BE;
+            --accent-color: #FFDDD2;
+            --text-light: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            text-align: center;
+            overflow-x: hidden;
+            padding-bottom: 70px; /* Space for fixed back button */
+        }
+        
+        .scroll-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Fixed Back Button */
+        .back-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--accent-color);
+            color: var(--primary-dark);
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80%;
+            max-width: 360px;
+        }
+        
+        .back-button:hover {
+            background-color: var(--primary-light);
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .back-button i {
+            margin-right: 8px;
+        }
+        
+        .airdrop-icon {
+            font-size: 60px;
+            color: var(--accent-color);
+            margin: 20px 0;
+        }
+        
+        .loading-section {
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .loading-title {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: var(--accent-color);
+            border-radius: 5px;
+            transition: width 0.1s linear;
+        }
+        
+        .verify-btn {
+            background-color: var(--accent-color);
+            color: var(--primary-dark);
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-top: 30px;
+            width: 100%;
+            display: none;
+        }
+        
+        .verify-btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+        
+        .distribution-message {
+            background: rgba(255, 221, 210, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .distribution-message i {
+            color: var(--accent-color);
+            margin-right: 10px;
+        }
+        
+        /* Popup Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--primary-dark);
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid var(--primary-light);
+            max-width: 300px;
+            width: 80%;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-content i {
+            font-size: 40px;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+        
+        .modal-content p {
+            font-size: 18px;
+            margin: 15px 0;
+        }
+        
+        .close-modal {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-top: 15px;
+        }
+        
+        .close-modal:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+        
+        /* TON DEX Logo Styles */
+        .ton-dex-logo {
+            margin-top: auto;
+            padding: 30px 0 70px; /* Extra padding for fixed button */
+            font-family: 'Arial', sans-serif;
+            position: relative;
+        }
+        
+        .ton-dex-logo span {
+            display: inline-block;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+        }
+        
+        .ton-dex-logo span::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+        }
+        
+        .ton-dex-logo .tagline {
+            display: block;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scroll-container">
+        <div class="airdrop-icon">
+            <i class="fas fa-parachute-box"></i>
+        </div>
+        
+        <div class="loading-section">
+            <div class="loading-title">
+                <span>Telegram Memes Referrals</span>
+                <span id="telegramPercent">0%</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="telegramBar"></div>
+            </div>
+        </div>
+        
+        <div class="loading-section">
+            <div class="loading-title">
+                <span>Active Referrals</span>
+                <span id="activePercent">0%</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="activeBar"></div>
+            </div>
+        </div>
+        
+        <div class="loading-section">
+            <div class="loading-title">
+                <span>Inactive Referrals</span>
+                <span id="inactivePercent">0%</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="inactiveBar"></div>
+            </div>
+        </div>
+        
+        <div class="distribution-message" id="distributionMessage">
+            <i class="fas fa-coins"></i>
+            <span>Referral coins will be distributed when the airdrop ends</span>
+        </div>
+        
+        <button class="verify-btn" id="verifyBtn">Verify</button>
+        
+        <!-- TON DEX Logo -->
+        <div class="ton-dex-logo">
+            <span>TON DEX</span>
+            <span class="tagline">Decentralized Exchange</span>
+        </div>
+    </div>
+    
+    <!-- Fixed Back Button -->
+    <a href="https://piswap362.github.io/TonDex_Frinds/" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+    
+    <!-- Popup Modal -->
+    <div class="modal" id="statusModal">
+        <div class="modal-content">
+            <i class="fas fa-hourglass-half"></i>
+            <h3>Coming Soon</h3>
+            <p>Referrals will be calculated soon</p>
+            <button class="close-modal" id="closeStatusModalBtn">OK</button>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Progress bars animation
+            const telegramBar = document.getElementById('telegramBar');
+            const activeBar = document.getElementById('activeBar');
+            const inactiveBar = document.getElementById('inactiveBar');
+            const telegramPercent = document.getElementById('telegramPercent');
+            const activePercent = document.getElementById('activePercent');
+            const inactivePercent = document.getElementById('inactivePercent');
+            const verifyBtn = document.getElementById('verifyBtn');
+            const distributionMessage = document.getElementById('distributionMessage');
+            
+            // Animate progress bars
+            animateProgressBar(telegramBar, telegramPercent, 8000);
+            setTimeout(() => {
+                animateProgressBar(activeBar, activePercent, 8000);
+            }, 500);
+            setTimeout(() => {
+                animateProgressBar(inactiveBar, inactivePercent, 8000);
+            }, 1000);
+            
+            function animateProgressBar(bar, percentElement, duration) {
+                let start = null;
+                const step = (timestamp) => {
+                    if (!start) start = timestamp;
+                    const progress = Math.min((timestamp - start) / duration, 1);
+                    const width = progress * 100;
+                    bar.style.width = width + '%';
+                    percentElement.textContent = Math.floor(width) + '%';
+                    
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        // Show verify button and message when all progress bars complete
+                        if (telegramBar.style.width === '100%' && 
+                            activeBar.style.width === '100%' && 
+                            inactiveBar.style.width === '100%') {
+                            verifyBtn.style.display = 'block';
+                            distributionMessage.style.display = 'block';
+                        }
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+            
+            // Verify button click handler
+            verifyBtn.addEventListener('click', function() {
+                document.getElementById('statusModal').style.display = 'flex';
+            });
+            
+            // Close modal button
+            document.getElementById('closeStatusModalBtn').addEventListener('click', function() {
+                document.getElementById('statusModal').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
